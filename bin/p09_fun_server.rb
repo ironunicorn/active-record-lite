@@ -1,5 +1,6 @@
 require 'webrick'
-require_relative '../lib/phase6/controller_base'
+require 'byebug'
+require_relative '../lib/phase9/controller_base'
 require_relative '../lib/phase6/router'
 
 
@@ -19,7 +20,7 @@ $statuses = [
   { id: 3, cat_id: 1, text: "Curie is cool!" }
 ]
 
-class StatusesController < Phase6::ControllerBase
+class StatusesController < Phase9::ControllerBase
   def index
     statuses = $statuses.select do |s|
       s[:cat_id] == Integer(params[:cat_id])
@@ -29,7 +30,7 @@ class StatusesController < Phase6::ControllerBase
   end
 end
 
-class CatsController < Phase6::ControllerBase
+class CatsController < Phase9::ControllerBase
   def index
     @cats = $cats
     render("index")
@@ -38,6 +39,17 @@ class CatsController < Phase6::ControllerBase
   def new
     render("new")
   end
+
+  def post
+    unless params["cat"]["name"] == ""
+      flash["flash now"] = "#{params['cat']['name']} created!"
+      $cats << {id: $cats.last[:id] + 1, name: params["cat"]["name"] }
+      redirect_to("http://localhost:3000/cats")
+    else
+      flash.now["flash now"] = "Error!"
+      render("new")
+    end
+  end
 end
 
 router = Phase6::Router.new
@@ -45,6 +57,7 @@ router.draw do
   get Regexp.new("^/cats$"), CatsController, :index
   get Regexp.new("^/cats/new$"), CatsController, :new
   get Regexp.new("^/cats/(?<cat_id>\\d+)/statuses$"), StatusesController, :index
+  post Regexp.new("^/cats$"), CatsController, :post
 end
 
 server = WEBrick::HTTPServer.new(Port: 3000)

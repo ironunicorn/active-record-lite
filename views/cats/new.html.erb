@@ -1,0 +1,15 @@
+<pre><%= flash["flash now"] if flash["flash now"] %></pre>
+<pre><%= flash["flash next"] if flash["flash next"] %></pre>
+
+<form action="/cats" method="POST">
+  <input type="hidden" name="security" value="<%= form_authenticity_token %>">
+  <label>Name
+    <input type="text" name="cat[name]">
+  </label>
+
+<!--   <label>Owner
+    <input type="text" name="cat[owner]">
+  </label> -->
+
+  <input type="submit">
+</form>
